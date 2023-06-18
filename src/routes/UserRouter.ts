@@ -10,7 +10,7 @@ const userRouter: Router = Router();
 const client: RedisClient = redis.createClient(secret);
 
 io.on("connection", (socket) => {
-  console.log("Usuario conectado");
+  console.log("Usuario conectado.");
 });
 
 userRouter.get("/users", async (req: Request, res: Response) => {
@@ -18,7 +18,7 @@ userRouter.get("/users", async (req: Request, res: Response) => {
     if (err) {
       return res.status(500).json({ error: "Error al obtener los usuarios" });
     }
-    return res.json(users);
+    return res.status(200).json(users);
   });
 });
 
@@ -29,7 +29,7 @@ userRouter.post("/users", (req: Request, res: Response) => {
   if (![nombreUsuario, monedas, notificaciones].every(Boolean)) {
     return res
       .status(400)
-      .json({ error: "El nombre del usuario es requerido" });
+      .json({ error: "Datos incompletos para crear usuario." });
   }
 
   const user: Usuario = {
@@ -41,12 +41,12 @@ userRouter.post("/users", (req: Request, res: Response) => {
 
   client.hset("users", userId, JSON.stringify(user), (err: Error | null) => {
     if (err) {
-      return res.status(500).json({ error: "Error al crear el usuario" });
+      return res.status(500).json({ error: "Error al crear el usuario." });
     }
 
-    io.emit("userCreated", user);
+    io.emit("Usuario creado.", user);
 
-    return res.json({ message: "Usuario creado exitosamente", user });
+    return res.status(200).json({ message: "Usuario creado exitosamente", user });
   });
 });
 
