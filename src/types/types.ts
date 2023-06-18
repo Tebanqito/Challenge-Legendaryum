@@ -24,3 +24,7 @@ export interface Room {
     room: string;
     monedas: Moneda[];
 };
+
+export interface Metaverso {
+    rooms: Room[];
+};
