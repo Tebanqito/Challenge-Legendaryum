@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Express } from "express";
 import { Server } from "socket.io";
 
 interface ServerToClientEvents {
@@ -20,8 +20,8 @@ interface SocketData {
   age: number;
 };
 
-const app = express();
-const port = 3000;
+const app: Express = express();
+const port: number = 3000;
 
 app.use(express.json());
 
@@ -29,7 +29,7 @@ const server = app.listen(port, () => {
   console.log(`Servidor iniciado en el puerto ${port}`);
 });
 
-export const io = new Server<
+export const io: Server = new Server<
   ClientToServerEvents,
   ServerToClientEvents,
   InterServerEvents,
