@@ -1,5 +1,6 @@
 import express, { Express } from "express";
 import { Server } from "socket.io";
+import router from "./routes/index";
 
 interface ServerToClientEvents {
   noArg: () => void;
@@ -24,6 +25,8 @@ const app: Express = express();
 const port: number = 3000;
 
 app.use(express.json());
+
+app.use("/api", router);
 
 const server = app.listen(port, () => {
   console.log(`Servidor iniciado en el puerto ${port}`);
