@@ -6,7 +6,7 @@ interface PosicionMoneda {
     z: number;
 }
 
-interface Moneda {
+export interface Moneda {
     id: string;
     tipoMoneda: TipoMoneda;
     posicion: PosicionMoneda;
