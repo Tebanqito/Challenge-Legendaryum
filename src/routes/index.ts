@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import userRouter from "./UserRouter";
 
-const router = Router();
+const router: Router = Router();
 
 router.use((req: Request, res: Response, next: NextFunction) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3001"); // update to match the domain you will make the request from
