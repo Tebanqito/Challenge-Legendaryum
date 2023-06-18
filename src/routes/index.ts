@@ -1,8 +1,8 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 
 const router = Router();
 
-router.use((req, res, next) => {
+router.use((req: Request, res: Response, next: NextFunction) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3001"); // update to match the domain you will make the request from
   res.header("Access-Control-Allow-Credentials", "true");
   res.header(
