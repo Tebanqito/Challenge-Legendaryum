@@ -22,4 +22,32 @@ userRouter.get("/users", async (req: Request, res: Response) => {
   });
 });
 
+userRouter.post("/users", (req: Request, res: Response) => {
+  const { nombreUsuario, monedas, notificaciones } = req.body;
+  const userId: string = uuidv4();
+
+  if (![nombreUsuario, monedas, notificaciones].every(Boolean)) {
+    return res
+      .status(400)
+      .json({ error: "El nombre del usuario es requerido" });
+  }
+
+  const user: Usuario = {
+    id: userId,
+    nombreUsuario,
+    monedas,
+    notificaciones,
+  };
+
+  client.hset("users", userId, JSON.stringify(user), (err: Error | null) => {
+    if (err) {
+      return res.status(500).json({ error: "Error al crear el usuario" });
+    }
+
+    io.emit("userCreated", user);
+
+    return res.json({ message: "Usuario creado exitosamente", user });
+  });
+});
+
 export default userRouter;
