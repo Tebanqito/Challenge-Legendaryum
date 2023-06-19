@@ -1,0 +1,19 @@
+[
+    {
+        "id": "1",
+        "nombreUsuario": "Esteban",
+        "monedas": []
+    },
+
+    {
+        "id": "2",
+        "nombreUsuario": "Gonzalo",
+        "monedas": []
+    },
+
+    {
+        "id": "3",
+        "nombreUsuario": "Maria",
+        "monedas": []
+    }
+]

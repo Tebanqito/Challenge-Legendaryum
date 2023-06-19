@@ -1,0 +1,169 @@
+[
+    {
+        "id": "1",
+        "room": 1,
+        "monedas": [
+            {
+                "id": "1",
+                "tipoMoneda": "Dolar",
+                "posicion": {
+                    "x": 1,
+                    "y": 2,
+                    "z": 3
+                }
+            },
+
+            {
+                "id": "2",
+                "tipoMoneda": "Euro",
+                "posicion": {
+                    "x": 3,
+                    "y": 8,
+                    "z": 1
+                }
+            },
+
+            {
+                "id": "3",
+                "tipoMoneda": "Dolar",
+                "posicion": {
+                    "x": 6,
+                    "y": 0,
+                    "z": 0
+                }
+            },
+
+            {
+                "id": "4",
+                "tipoMoneda": "Euro",
+                "posicion": {
+                    "x": 5,
+                    "y": 7,
+                    "z": 3
+                }
+            }
+        ]
+    },
+
+    {
+        "id": "2",
+        "room": 2,
+        "monedas": [
+            {
+                "id": "5",
+                "tipoMoneda": "Libra",
+                "posicion": {
+                    "x": 3,
+                    "y": 1,
+                    "z": 7
+                }
+            },
+
+            {
+                "id": "6",
+                "tipoMoneda": "Libra",
+                "posicion": {
+                    "x": 4,
+                    "y": 4,
+                    "z": 6
+                }
+            },
+
+            {
+                "id": "7",
+                "tipoMoneda": "Peso",
+                "posicion": {
+                    "x": 9,
+                    "y": 0,
+                    "z": 5
+                }
+            },
+
+            {
+                "id": "8",
+                "tipoMoneda": "Peso",
+                "posicion": {
+                    "x": 7,
+                    "y": 3,
+                    "z": 2
+                }
+            },
+
+            {
+                "id": "9",
+                "tipoMoneda": "Real",
+                "posicion": {
+                    "x": 1,
+                    "y": 8,
+                    "z": 5
+                }
+            }
+        ]
+    },
+
+    {
+        "id": "3",
+        "room": 3,
+        "monedas": [
+            {
+                "id": "10",
+                "tipoMoneda": "Real",
+                "posicion": {
+                    "x": 2,
+                    "y": 9,
+                    "z": 5
+                }
+            },
+
+            {
+                "id": "11",
+                "tipoMoneda": "Dolar",
+                "posicion": {
+                    "x": 8,
+                    "y": 8,
+                    "z": 8
+                }
+            },
+
+            {
+                "id": "12",
+                "tipoMoneda": "Real",
+                "posicion": {
+                    "x": 2,
+                    "y": 9,
+                    "z": 5
+                }
+            },
+
+            {
+                "id": "13",
+                "tipoMoneda": "Dolar",
+                "posicion": {
+                    "x": 4,
+                    "y": 1,
+                    "z": 0
+                }
+            },
+
+            {
+                "id": "14",
+                "tipoMoneda": "Euro",
+                "posicion": {
+                    "x": 6,
+                    "y": 2,
+                    "z": 9
+                }
+            },
+
+            {
+                "id": "15",
+                "tipoMoneda": "Euro",
+                "posicion": {
+                    "x": 0,
+                    "y": 8,
+                    "z": 4
+                }
+            }
+        ]
+    }
+]
