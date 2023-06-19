@@ -2,7 +2,6 @@ import { Router, Request, Response } from "express";
 import redis, { RedisClient } from "redis";
 import { Room, Moneda, LimitePoscion, Usuario } from "../types/types";
 import { v4 as uuidv4 } from "uuid";
-import { Console } from "console";
 
 const client: RedisClient = redis.createClient();
 const roomRouter: Router = Router();
