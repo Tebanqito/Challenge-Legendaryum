@@ -1,4 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
+import roomRouter from "./roomRouter";
 
 const router: Router = Router();
 
@@ -12,5 +13,7 @@ router.use((req: Request, res: Response, next: NextFunction) => {
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   next();
 });
+
+router.use("/rooms", roomRouter);
 
 export default router;
