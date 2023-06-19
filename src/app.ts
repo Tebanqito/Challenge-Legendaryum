@@ -15,8 +15,6 @@ const client: RedisClient = redis.createClient();
 
 app.use(express.json());
 
-// app.use("/api", router);
-
 server.listen(port, () => {
   console.log(`Servidor iniciado en el puerto ${port}`);
 });
@@ -125,6 +123,7 @@ io.on("connection", (socket) => {
 
         let room: Room = JSON.parse(data); // obtengo la room
         room.limitesPosicion = configuracion.limites3D;
+        room.cantidadMonedas = configuracion.cantidadMonedas;
         // por cada cantidad de monedas genero una
         for (let index = 0; index < configuracion.cantidadMonedas; index++) {
           client.hgetall("monedas", (err: Error | null, data) => {
@@ -142,8 +141,8 @@ io.on("connection", (socket) => {
               tipoMoneda: "Dolar",
               posicion: posicionMoneda
             };
-            // seteo la moneda en la BDD
-            client.hset("monedas", moneda.id, JSON.stringify(moneda), (err: Error | null) => {
+            // seteo la moneda en la BDD con la expiracion de que en 1 hora se borre
+            client.set("monedas", JSON.stringify(moneda), "EX", 3600, (err: Error | null) => {
               if (err) return io.emit("error", err);
             });
 
@@ -163,6 +162,52 @@ io.on("connection", (socket) => {
     client.hgetall("rooms", (err: Error | null, data) => {
       if (err) return io.emit("error", err);
       socket.emit("Rooms", JSON.stringify(data));
+    });
+  });
+
+  // GENERACION AUTOMATICA DE MONEDAS CON ROOMS YA SETEADAS EN LA BDD -------------------------------------
+  socket.on("generacionMonedasAutomatico", () => {
+    // busco las rooms desde la BDD
+    client.hgetall("rooms", (err: Error | null, data) => {
+      if (err) return io.emit("error", err);
+    
+      let rooms: Room[] = JSON.parse(JSON.stringify(data)); // obtengo las rooms
+
+      // recorro cada room para agregarle nuevas monedas con su configuracion de limites y cantidad
+      // de monedas ya preestablecidas
+      for (let i = 0; i < rooms.length; i++) {
+        // por cada cantidad de monedas agrego una a la room
+        for (let j = 0; j < rooms[i].cantidadMonedas; j++) {
+          let posicionMoneda: PosicionMoneda = generarPosicion3D(rooms[i].limitesPosicion);
+ 
+          // creo la moneda
+          const moneda: Moneda = {
+            id: uuidv4(),
+            tipoMoneda: "Dolar",
+            posicion: posicionMoneda
+          };
+
+          // agrego la nueva moneda a la room
+          rooms[i].monedas = [ ...rooms[i].monedas, moneda ] as Moneda[];
+          
+          // seteo la nueva moneda a la BDD
+          client.set("monedas", JSON.stringify(moneda), "EX", 3600, (err: Error | null) => {
+            if (err) return io.emit("error", err);
+          });
+
+          // actualizo la room con la moneda nueva
+          client.hset("rooms", rooms[i].id, JSON.stringify(rooms[i]), (err: Error | null) => {
+            if (err) return io.emit("error", err);
+          });
+        }
+
+      }
+
+      // obtengo todas las rooms ya con sus monedas y las devuelvo en un JSON
+      client.hgetall("rooms", (err: Error | null, data) => {
+        if (err) return io.emit("error", err);
+        socket.emit("Rooms", JSON.stringify(data));
+      });
     });
   });
 
