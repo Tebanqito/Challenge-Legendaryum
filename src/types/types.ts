@@ -25,7 +25,6 @@ export interface Usuario {
     id: string;
     nombreUsuario: string;
     monedas: Moneda[];
-    notificaciones: string[];
 };
 
 export interface Room {
