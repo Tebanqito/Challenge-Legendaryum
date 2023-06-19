@@ -121,7 +121,8 @@ io.on("connection", (socket) => {
     // por cada room le genero monedas
     for (let index = 0; index < configuracion.idRooms.length; index++) {
       client.hget("rooms", configuracion.idRooms[index], (err: Error | null, data: string) => {
-      
+        if (err) return io.emit("error", err);
+
         let room: Room = JSON.parse(data); // obtengo la room
         room.limitesPosicion = configuracion.limites3D;
         // por cada cantidad de monedas genero una
