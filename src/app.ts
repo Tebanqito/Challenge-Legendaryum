@@ -1,17 +1,16 @@
 import express, { Express } from "express";
 import socket from "socket.io";
-import router from "./routes/index";
 import http, { Server } from "http";
 import redis, { RedisClient } from "redis";
 import { v4 as uuidv4 } from "uuid";
-import { Usuario, Metaverso, Moneda, Room, TipoMoneda } from "./types/types";
-import { forEachChild } from "typescript";
+import { Usuario, LimitePoscion, Moneda, Room, TipoMoneda } from "./types/types";
 
 const app: Express = express();
 const server: Server = http.createServer(app);
 const port: number = 3000;
-const secret = { host: "localhost", port: 3000, password: "" };
-const client: RedisClient = redis.createClient(secret);
+// const secret = { host: "localhost", port: 3000, password: "" };
+// const client: RedisClient = redis.createClient(secret);
+const client: RedisClient = redis.createClient();
 
 app.use(express.json());
 
@@ -60,7 +59,7 @@ io.on("connection", (socket) => {
                   moneda = room.monedas[index];
                   tipoMoneda = moneda.tipoMoneda;
                   room.monedas.filter((m) => m.id !== moneda.id);
-                  user.monedas = [...user.monedas, moneda];
+                  user.monedas = [...user.monedas, moneda] as Moneda[];
                   break;
                 }
               }
@@ -89,7 +88,10 @@ io.on("connection", (socket) => {
 
               if (!isTipoMoneda)
                 io.emit(
-                  `La moneda ${tipoMoneda} ya no esta disponible en la room ${room.room}`
+                  "monedaNoDisponible",
+                  JSON.stringify({
+                    message: `La moneda ${tipoMoneda} ya no esta disponible en la room ${room.room}`,
+                  })
                 );
             }
           );
@@ -98,6 +100,27 @@ io.on("connection", (socket) => {
     }
   );
 
+  socket.on("generarMonedas", (data: string) => {
+    const configuracion: { 
+      idRooms: string[]; 
+      cantidadMonedas: number;
+      limites3D: LimitePoscion;
+    } = JSON.parse(data);
+
+
+    for (let index = 0; index < configuracion.idRooms.length; index++) {
+      client.hget("rooms", configuracion.idRooms[index], (err: Error | null, data: string) => {
+        
+        let room: Room = JSON.parse(data);
+        room.limitesPosicion = configuracion.limites3D;
+
+        // for (let index = 0; index < configuracion.cantidadMonedas; index++) {
+        //   const element = room[index];       
+        // }
+
+      });
+    }
+  });
 
 });
 
