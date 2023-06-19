@@ -67,11 +67,9 @@ roomRouter.put("/update/:id", (req: Request, res: Response) => {
   client.hget("rooms", id, (err: Error | null, room: string) => {
     if (err) {
       console.log(err);
-      return res
-        .status(400)
-        .json({
-          error: `Error al obtener la room con id ${id} para actualizar.`,
-        });
+      return res.status(400).json({
+        error: `Error al obtener la room con id ${id} para actualizar.`,
+      });
     }
 
     let roomToUpdate = JSON.parse(room);
@@ -92,6 +90,34 @@ roomRouter.put("/update/:id", (req: Request, res: Response) => {
         res.status(200).json(roomToUpdate);
       }
     );
+  });
+});
+
+roomRouter.delete("/delete/:id", (req: Request, res: Response) => {
+  const id: string = req.params.id;
+
+  client.hget("rooms", id, (err: Error | null, room: string) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json({
+        error: `Error al obtener la room con id ${id} para eliminar.`,
+      });
+    }
+
+    let roomToDelete = JSON.parse(room);
+
+    client.hdel("rooms", roomToDelete.id, (err, resultado) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json({
+          error: `Error al eliminar la room con id ${id}.`,
+        });
+      }
+
+      if (!resultado) return res.status(400).json({ error: `Room con id ${id} no eliminada.` });
+
+      res.status(200).json(roomToDelete);
+    });
   });
 });
 
