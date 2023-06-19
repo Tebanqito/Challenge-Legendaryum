@@ -13,3 +13,5 @@ router.use((req: Request, res: Response, next: NextFunction) => {
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   next();
 });
+
+export default router;
