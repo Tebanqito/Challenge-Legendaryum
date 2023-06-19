@@ -104,6 +104,7 @@ io.on("connection", (socket) => {
           );
         }
       );
+      socket.emit("monedaObtenida", JSON.stringify({ message: "Mondea obtenida." }));
     }
   );
 
