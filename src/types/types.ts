@@ -33,6 +33,7 @@ export interface Room {
     usuarios: Usuario[];
     monedas: Moneda[];
     limitesPosicion: LimitePoscion;
+    cantidadMonedas: number;
 };
 
 export interface Metaverso {
