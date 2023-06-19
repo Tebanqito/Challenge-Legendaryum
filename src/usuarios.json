@@ -2,21 +2,18 @@
     {
         "id": "1",
         "nombreUsuario": "Esteban",
-        "monedas": [],
-        "notificaciones": []
+        "monedas": []
     },
 
     {
         "id": "2",
         "nombreUsuario": "Gonzalo",
-        "monedas": [],
-        "notificaciones": []
+        "monedas": []
     },
 
     {
         "id": "3",
         "nombreUsuario": "Maria",
-        "monedas": [],
-        "notificaciones": []
+        "monedas": []
     }
 ]
