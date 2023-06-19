@@ -2,8 +2,9 @@ import express, { Express } from "express";
 import socket from "socket.io";
 import http, { Server } from "http";
 import redis, { RedisClient } from "redis";
+import { generarPosicion3D, corroborarPosicion3D } from "./funciones";
 import { v4 as uuidv4 } from "uuid";
-import { Usuario, LimitePoscion, Moneda, Room, TipoMoneda } from "./types/types";
+import { Usuario, LimitePoscion, Moneda, Room, TipoMoneda, PosicionMoneda } from "./types/types";
 
 const app: Express = express();
 const server: Server = http.createServer(app);
@@ -24,15 +25,17 @@ export const io: socket.Server = socket(server);
 
 io.on("connection", (socket) => {
 
+  // USUARIO INDICA EL ESPACIO DEL METAVERSO EN QUE ESTA -----------------------------------------------
   socket.on("room", (idRoom: string) => {
     client.hget("rooms", idRoom, (err: Error | null, roomData: string) => {
       if (err) return io.emit("error", err);
 
-      const room: Room = JSON.parse(roomData);
-      socket.emit("Monedas", JSON.stringify(room.monedas));
+      const room: Room = JSON.parse(roomData); // obtengo la room en la que esta el usuario
+      socket.emit("Monedas", JSON.stringify(room.monedas)); // devuelvo las monedas de esa room en un JSON
     });
   });
 
+  // USUARIO AGARRA UNA MONEDA -------------------------------------------------------------------------
   socket.on(
     "agarrarMoneda",
     (data: { idUsuario: string; idRoom: string; idMoneda: string }) => {
@@ -42,7 +45,7 @@ io.on("connection", (socket) => {
         (err: Error | null, userData: string) => {
           if (err) return io.emit("error", err);
 
-          const user: Usuario = JSON.parse(userData);
+          const user: Usuario = JSON.parse(userData); // obtengo el usuario
 
           client.hget(
             "rooms",
@@ -50,20 +53,23 @@ io.on("connection", (socket) => {
             (err: Error | null, roomData: string) => {
               if (err) return io.emit("error", err);
 
-              const room: Room = JSON.parse(roomData);
+              const room: Room = JSON.parse(roomData); // obtengo la room
 
               let moneda: Moneda;
               let tipoMoneda: TipoMoneda = "Dolar";
+              // recorro las monedas de la room para ver que moneda agarro el usuario
               for (let index = 0; index < room.monedas.length; index++) {
                 if (room.monedas[index].id === data.idMoneda) {
                   moneda = room.monedas[index];
                   tipoMoneda = moneda.tipoMoneda;
+                  // saco de la room la moneda que agarro el usuario
                   room.monedas.filter((m) => m.id !== moneda.id);
-                  user.monedas = [...user.monedas, moneda] as Moneda[];
+                  user.monedas = [...user.monedas, moneda] as Moneda[]; // agrego la moneda al usuario
                   break;
                 }
               }
 
+              // actualizo el usuario con la nueva moneda que agarro
               client.hset(
                 "users",
                 data.idUsuario,
@@ -73,6 +79,7 @@ io.on("connection", (socket) => {
                 }
               );
 
+              // actualizo la room ya sin la moneda que agarro el usuario
               client.hset(
                 "rooms",
                 data.idRoom,
@@ -82,10 +89,12 @@ io.on("connection", (socket) => {
                 }
               );
 
+              // corroboro que el tipo de moneda que agarro el usuario siga en la room
               const isTipoMoneda: boolean = room.monedas
                 .map((m) => m.tipoMoneda)
                 .includes(tipoMoneda);
 
+              // si ya no hay mas monedas de ese tipo en la room, entonces les aviso a todos los usuarios
               if (!isTipoMoneda)
                 io.emit(
                   "monedaNoDisponible",
@@ -100,26 +109,60 @@ io.on("connection", (socket) => {
     }
   );
 
+  // SEÑAL PARA GENERAR MONEDAS ----------------------------------------------------------------------
   socket.on("generarMonedas", (data: string) => {
+    // obtengo los datos para generar las monedas
     const configuracion: { 
       idRooms: string[]; 
       cantidadMonedas: number;
       limites3D: LimitePoscion;
     } = JSON.parse(data);
 
-
+    // por cada room le genero monedas
     for (let index = 0; index < configuracion.idRooms.length; index++) {
       client.hget("rooms", configuracion.idRooms[index], (err: Error | null, data: string) => {
-        
-        let room: Room = JSON.parse(data);
+      
+        let room: Room = JSON.parse(data); // obtengo la room
         room.limitesPosicion = configuracion.limites3D;
+        // por cada cantidad de monedas genero una
+        for (let index = 0; index < configuracion.cantidadMonedas; index++) {
+          client.hgetall("monedas", (err: Error | null, data) => {
+            if (err) return io.emit("error", err);
 
-        // for (let index = 0; index < configuracion.cantidadMonedas; index++) {
-        //   const element = room[index];       
-        // }
+            const monedas: Moneda[] = JSON.parse(JSON.stringify(data)); // obtengo las monedas
+            let posicionMoneda: PosicionMoneda = generarPosicion3D(configuracion.limites3D);
+            // mientras la posicion que se creo este ocupada genero otra posicion
+            while(!corroborarPosicion3D(monedas, posicionMoneda)) {
+              posicionMoneda = generarPosicion3D(configuracion.limites3D);
+            }
+            // creo la moneda
+            const moneda: Moneda = {
+              id: uuidv4(),
+              tipoMoneda: "Dolar",
+              posicion: posicionMoneda
+            };
+            // seteo la moneda en la BDD
+            client.hset("monedas", moneda.id, JSON.stringify(moneda), (err: Error | null) => {
+              if (err) return io.emit("error", err);
+            });
+
+            // le agrego la moneda a la room
+            room.monedas = [...room.monedas, moneda];
+            // actualizo la room con la moneda nueva
+            client.hset("rooms", room.id, JSON.stringify(room), (err: Error | null) => {
+              if (err) return io.emit("error", err);
+            });
+          });
+        }
 
       });
     }
+
+    // obtengo todas las rooms ya con sus monedas y las devuelvo en un JSON
+    client.hgetall("rooms", (err: Error | null, data) => {
+      if (err) return io.emit("error", err);
+      socket.emit("Rooms", JSON.stringify(data));
+    });
   });
 
 });
