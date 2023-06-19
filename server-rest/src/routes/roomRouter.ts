@@ -18,7 +18,7 @@ roomRouter.get("/", (req: Request, res: Response) => {
   });
 });
 
-roomRouter.get("/cantidadMonedas/:id", (req: Request, res: Response) => {
+roomRouter.get("/monedasDisponibles/:id", (req: Request, res: Response) => {
   const id: string = req.params.id;
 
   client.hget("rooms", id, (err: Error | null, room: string) => {
@@ -34,6 +34,26 @@ roomRouter.get("/cantidadMonedas/:id", (req: Request, res: Response) => {
     res.status(200).json({
       room: roomParseada.room,
       monedasDiponibles: roomParseada.monedas.length,
+    });
+  });
+});
+
+roomRouter.get("/cantidadUsuarios/:id", (req: Request, res: Response) => {
+  const id: string = req.params.id;
+
+  client.hget("rooms", id, (err: Error | null, room: string) => {
+    if (err) {
+      console.log(err);
+      return res
+        .status(400)
+        .json({ error: `Error al obtener la room con el id ${id}.` });
+    }
+
+    const roomParseada: Room = JSON.parse(room);
+
+    res.status(200).json({
+      room: roomParseada.room,
+      usuariosEnRomm: roomParseada.usuarios.length,
     });
   });
 });
