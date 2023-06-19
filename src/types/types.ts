@@ -1,6 +1,6 @@
 export type TipoMoneda = "Dolar" | "Peso" | "Real" | "Euro";
 
-interface PosicionMoneda {
+export interface PosicionMoneda {
     x: number;
     y: number;
     z: number;
