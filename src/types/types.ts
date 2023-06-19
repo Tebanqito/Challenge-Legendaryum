@@ -6,7 +6,7 @@ interface PosicionMoneda {
     z: number;
 };
 
-interface LimitePoscion {
+export interface LimitePoscion {
     xMin: number;
     xMax: number;
     yMax: number;
