@@ -1,4 +1,4 @@
-import { LimitePoscion, PosicionMoneda } from "./types/types";
+import { LimitePoscion, PosicionMoneda, Moneda } from "./types/types";
 
 export function generarPosicion3D(limite: LimitePoscion): PosicionMoneda {
   return {
@@ -9,5 +9,20 @@ export function generarPosicion3D(limite: LimitePoscion): PosicionMoneda {
     z:
       Math.floor(Math.random() * (limite.zMax - limite.zMin + 1)) + limite.zMin,
   };
-};
+}
 
+export function corroborarPosicion3D(
+  monedas: Moneda[],
+  posicion: PosicionMoneda
+): boolean {
+  for (let index = 0; index < monedas.length; index++) {
+    const isPosicion: boolean =
+      monedas[index].posicion.x === posicion.x &&
+      monedas[index].posicion.y === posicion.y &&
+      monedas[index].posicion.z === posicion.z;
+
+    if (isPosicion) return false;
+  }
+
+  return true;
+};
