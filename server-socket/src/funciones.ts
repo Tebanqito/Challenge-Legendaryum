@@ -26,3 +26,11 @@ export function corroborarPosicion3D(
 
   return true;
 };
+
+export function corroborarMoneda(monedas: Moneda[], monedaId: string): boolean {
+  for (let index = 0; index < monedas.length; index++) {
+    if (monedas[index].id === monedaId) return true;
+  }
+
+  return false;
+};
