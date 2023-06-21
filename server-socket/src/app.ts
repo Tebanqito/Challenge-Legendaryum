@@ -2,7 +2,7 @@ import express, { Express } from "express";
 import socket from "socket.io";
 import http, { Server } from "http";
 import redis, { RedisClient } from "redis";
-import { generarPosicion3D, corroborarPosicion3D } from "./funciones";
+import { generarPosicion3D, corroborarPosicion3D, corroborarMoneda } from "./funciones";
 import { v4 as uuidv4 } from "uuid";
 import { Usuario, LimitePoscion, Moneda, Room, TipoMoneda, PosicionMoneda } from "./types/types";
 
@@ -116,22 +116,20 @@ io.on("connection", (socket) => {
     "agarrarMoneda",
     async (data: { idUsuario: string; idRoom: string; idMoneda: string }) => {
       try {
-        // trato de obtener la moneda y la operacion del cliente al tratar de obtener la moneda
-        // me retornara un valor false o true dependiendo si la moneda esta disponible o no
-        const isMoneda: boolean = await client.hget("monedas", data.idMoneda);
+        await client.hget("rooms", data.idRoom, async (err: Error | null, roomData: string) => {
+          const room: Room = JSON.parse(roomData); // obtengo la room para corroborar que exista la moneda
+          const isMoneda: boolean = corroborarMoneda(room.monedas, data.idMoneda);
 
-        // si isMoneda es igual a false, entonces significa que la moneda no esta disponible,
-        // por lo tanto le aviso al usuario y me ahorro el proceso de obtener la room y el usuario
-        // antes que la moneda, ya que sin la moneda disponible seria en vano obtener el usuario y la room
-        if (!isMoneda) {
-          socket.emit("monedaNoDisponible", JSON.stringify({
-            message: "La moneda que intenta obtener ya no se encuentra disponible."
-          }));
-          throw new Error("Moneda no disponible.");
-        }
 
-        // si isMoneda es igual true entonces significa que la moneda si esta disponible y puedo seguir
-        // con el sistema de que el usuario obtenga esa moneda
+          // si isMoneda es igual a false, entonces significa que la moneda no esta disponible,
+          // por lo tanto le aviso al usuario, sino, prosigo con darle la moneda al usuario
+          if (!isMoneda) {
+            socket.emit("monedaNoDisponible", JSON.stringify({
+              message: "La moneda que intenta obtener ya no se encuentra disponible."
+            }));
+            throw new Error("Moneda no disponible.");
+          }
+        });
 
         await client.hget(
           "users",
